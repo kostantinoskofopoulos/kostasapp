@@ -21,3 +21,17 @@ dependencyResolutionManagement {
 
 rootProject.name = "kostasapp"
 include(":app")
+
+
+
+// --- CORE ---
+include(":core:model")
+include(":core:network")
+include(":core:database")
+include(":core:domain")
+include(":core:data")
+include(":core:designsystem")
+
+// --- FEATURE ---
+include(":feature:heroes")
+include(":feature:hero-details")
