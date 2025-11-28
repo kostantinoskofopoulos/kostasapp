@@ -1,80 +1,123 @@
 package com.kostas.kostasapp.feature.heroes
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.LazyPagingItems
 import coil.compose.AsyncImage
 import com.kostas.kostasapp.core.model.Hero
 
-@Composable
-fun HeroesRoute(
-    onHeroClick: (Int) -> Unit,
-    viewModel: HeroesViewModel = hiltViewModel()
-) {
-    val squad by viewModel.squad.collectAsState()
-    val heroes = viewModel.heroesPaging.collectAsLazyPagingItems()
-
-    HeroesScreen(
-        squad = squad,
-        heroes = heroes,
-        onHeroClick = onHeroClick
-    )
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HeroesScreen(
-    squad: List<Hero>,
-    heroes: androidx.paging.compose.LazyPagingItems<Hero>,
-    onHeroClick: (Int) -> Unit
+fun HeroesScreen(
+    uiState: HeroesUiState,
+    heroes: LazyPagingItems<Hero>,
+    onHeroClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column {
-        TopAppBar(
-            title = { Text("Superhero Squad Maker") },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color(0xFF6200EE),
-                titleContentColor = Color.White
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Superhero Squad Maker") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
-        )
-
-        if (squad.isNotEmpty()) {
-            Text(
-                "My Squad",
-                modifier = Modifier.padding(12.dp),
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Row(Modifier.padding(start = 12.dp)) {
-                squad.take(5).forEach { hero ->
-                    AsyncImage(
-                        model = hero.imageUrl,
-                        contentDescription = hero.name,
-                        modifier = Modifier
-                            .size(52.dp)
-                            .padding(end = 8.dp)
-                            .clip(MaterialTheme.shapes.medium)
-                    )
-                }
-            }
         }
+    ) { innerPadding ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
 
-        Divider()
+            // ---------- My Squad ----------
+            if (uiState.squad.isNotEmpty()) {
+                Text(
+                    text = "My Squad",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                )
 
-        LazyColumn {
-            items(heroes.itemSnapshotList.items) { hero ->
-                HeroRow(hero, onHeroClick)
-                Divider()
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(uiState.squad) { hero ->
+                        SquadHeroChip(
+                            hero = hero,
+                            onClick = { onHeroClick(hero.id) }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // ---------- Heroes list ----------
+            HeroesList(
+                heroes = heroes,
+                onHeroClick = onHeroClick,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f, fill = true)
+            )
+        }
+    }
+}
+
+@Composable
+private fun HeroesList(
+    heroes: LazyPagingItems<Hero>,
+    onHeroClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(0.dp)
+    ) {
+        // ΠΡΟΣΟΧΗ: Χρησιμοποιούμε count + index,
+        // γιατί η δική σου βιβλιοθήκη δεν έχει items(LazyPagingItems)
+        items(
+            count = heroes.itemCount
+        ) { index ->
+            val hero = heroes[index]
+            if (hero != null) {
+                HeroRow(
+                    hero = hero,
+                    onClick = { onHeroClick(hero.id) }
+                )
             }
         }
     }
@@ -83,27 +126,69 @@ private fun HeroesScreen(
 @Composable
 private fun HeroRow(
     hero: Hero,
-    onClick: (Int) -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = Modifier
+    Column(
+        modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick(hero.id) }
-            .padding(12.dp)
+            .clickable(onClick = onClick)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = hero.imageUrl,
+                contentDescription = hero.name,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Text(
+                text = hero.name.orEmpty(),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        HorizontalDivider()
+    }
+}
+
+@Composable
+private fun SquadHeroChip(
+    hero: Hero,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .width(72.dp)
+            .clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(
             model = hero.imageUrl,
             contentDescription = hero.name,
             modifier = Modifier
-                .size(40.dp)
-                .clip(MaterialTheme.shapes.small)
+                .size(56.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
         )
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            hero.name.orEmpty(),
-            style = MaterialTheme.typography.bodyMedium
+            text = hero.name.orEmpty(),
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

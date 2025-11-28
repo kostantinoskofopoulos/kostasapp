@@ -1,49 +1,53 @@
 package com.kostas.kostasapp.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.kostas.kostasapp.feature.hero_details.HeroDetailsRoute
-import com.kostas.kostasapp.feature.heroes.HeroesViewModel
 import com.kostas.kostasapp.feature.heroes.HeroesRoute
+import com.kostas.kostasapp.feature.heroes.HeroesViewModel
 import kotlinx.serialization.Serializable
 
-
-
-// ---------- NAVIGATION ROUTES ----------
+// ---------- NAV ROUTES ----------
 @Serializable
 object HeroesScreen
 
 @Serializable
 data class HeroDetailsScreen(val heroId: Int)
 
-// ---------- ROOT NAVGRAPH ----------
+// ---------- ROOT GRAPH ----------
 @Composable
 fun AppNavGraph(navController: NavHostController) {
-
     NavHost(
         navController = navController,
         startDestination = HeroesScreen
     ) {
 
-        // HEROES LIST
+        // LIST SCREEN
         composable<HeroesScreen> {
-            val vm = hiltViewModel<HeroesViewModel>()
-            val uiState = vm.uiState.collectAsState()
+            val viewModel: HeroesViewModel = hiltViewModel()
+
+            val uiState by viewModel.uiState.collectAsState()
+            val heroesPaging = viewModel.heroesPaging.collectAsLazyPagingItems()
 
             HeroesRoute(
-                heroes = uiState.value.heroes,
-                onHeroClick = { id -> navController.navigate(HeroDetailsScreen(id)) }
+                uiState = uiState,
+                heroes = heroesPaging,
+                onHeroClick = { id ->
+                    navController.navigate(HeroDetailsScreen(id))
+                }
             )
         }
 
-        // HERO DETAILS
+        // DETAILS SCREEN
         composable<HeroDetailsScreen> { entry ->
             val args = entry.toRoute<HeroDetailsScreen>()
-
             HeroDetailsRoute(
                 heroId = args.heroId,
                 onBack = { navController.popBackStack() }
@@ -52,6 +56,3 @@ fun AppNavGraph(navController: NavHostController) {
     }
 }
 
-private fun Any.collectAsState() {
-    TODO("Not yet implemented")
-}

@@ -1,3 +1,4 @@
+
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
@@ -45,4 +46,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation("androidx.paging:paging-compose:1.0.0-alpha20")
+    implementation(libs.androidx.material.icons.core)
+    implementation(libs.androidx.material.icons.extended)
 }

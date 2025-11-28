@@ -1,105 +1,176 @@
 package com.kostas.kostasapp.feature.hero_details
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.kostas.kostasapp.core.model.Hero
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HeroDetailsRoute(
-    heroId: Int,
+fun HeroDetailsScreen(
+    uiState: HeroDetailsUiState,
     onBack: () -> Unit,
-    viewModel: HeroDetailsViewModel = hiltViewModel()
+    onRecruitClick: () -> Unit,
+    onFireClick: () -> Unit,
+    onFireConfirm: () -> Unit,
+    onFireDismiss: () -> Unit
 ) {
-    LaunchedEffect(heroId) {
-        viewModel.loadHero(heroId)
-    }
+    val hero = uiState.hero
 
-    val ui = viewModel.uiState.collectAsState().value
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(hero?.name.orEmpty())
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    if (hero != null) {
+                        if (uiState.isInSquad) {
+                            Button(onClick = onFireClick) {
+                                Text("Fire from Squad")
+                            }
+                        } else {
+                            Button(onClick = onRecruitClick) {
+                                Text("Recruit to Squad")
+                            }
+                        }
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        when {
+            uiState.isLoading -> {
+                Column(
+                    modifier = Modifier
+                        .padding(padding)
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                }
+            }
 
-    ui.hero?.let { hero ->
-        HeroDetailsScreen(
-            hero = hero,
-            isInSquad = ui.isInSquad,
-            onBack = onBack,
-            onHire = viewModel::hire,
-            onFire = viewModel::fire
-        )
+            uiState.errorMessage != null -> {
+                Column(
+                    modifier = Modifier
+                        .padding(padding)
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = uiState.errorMessage,
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+
+            hero != null -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(padding)
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+
+                    item {
+                        AsyncImage(
+                            model = hero.imageUrl,
+                            contentDescription = hero.name,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(240.dp)
+                                .clip(RoundedCornerShape(16.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = hero.name.orEmpty(),
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    section("Films", hero.films)
+                    section("TV Shows", hero.tvShows)
+                    section("Video Games", hero.videoGames)
+                    section("Allies", hero.allies)
+                    section("Enemies", hero.enemies)
+                }
+            }
+        }
+
+        // Confirm dialog
+        if (uiState.showFireConfirmDialog) {
+            AlertDialog(
+                onDismissRequest = onFireDismiss,
+                title = { Text("Remove from Squad") },
+                text = { Text("Are you sure you want to fire this hero from your squad?") },
+                confirmButton = {
+                    Button(onClick = onFireConfirm) {
+                        Text("Yes, fire")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = onFireDismiss) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
     }
 }
 
-@Composable
-private fun HeroDetailsScreen(
-    hero: Hero,
-    isInSquad: Boolean,
-    onBack: () -> Unit,
-    onHire: () -> Unit,
-    onFire: () -> Unit
+private fun androidx.compose.foundation.lazy.LazyListScope.section(
+    title: String,
+    items: List<String>
 ) {
-    Column {
-        AsyncImage(
-            hero.imageUrl,
-            hero.name,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(280.dp)
-        )
-
-        IconButton(onClick = onBack) {
-            Icon(Icons.Default.Close, contentDescription = "Back")
+    if (items.isNotEmpty()) {
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium
+            )
         }
-
-        Text(
-            hero.name.orEmpty(),
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(16.dp)
-        )
-
-        if (!isInSquad) {
-            Button(
-                onClick = onHire,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth()
-            ) {
-                Text("💪 Hire to Squad")
-            }
-        } else {
-            Button(
-                onClick = onFire,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFE57373)
-                ),
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth()
-            ) {
-                Text("🔥 Fire from Squad")
-            }
+        items(items) { value ->
+            Text(
+                text = "• $value",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
-
-        Spacer(Modifier.height(16.dp))
-
-        DetailsText(hero)
-    }
-}
-
-@Composable
-private fun DetailsText(hero: Hero) {
-    Column(Modifier.padding(16.dp)) {
-        if (hero.films.isNotEmpty()) Text("Films: ${hero.films.joinToString()}")
-        if (hero.tvShows.isNotEmpty()) Text("Tv Shows: ${hero.tvShows.joinToString()}")
-        if (hero.videoGames.isNotEmpty()) Text("Video Games: ${hero.videoGames.joinToString()}")
     }
 }

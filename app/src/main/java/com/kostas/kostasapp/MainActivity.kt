@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             SuperheroAppTheme {
                 val navController = rememberNavController()
-                AppNavGraph(navController)
+                AppNavGraph(navController = navController)
             }
         }
     }

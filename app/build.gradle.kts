@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.kotlinCompose)
-    alias(libs.plugins.kotlinSerialization)   // 🔥 REQUIRED for Navigation 3 typed routes
+    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.hiltAndroid)
     kotlin("kapt")
 }
@@ -43,12 +43,16 @@ android {
 
 dependencies {
 
-    // Android Core
+    // ---------------------
+    // ANDROID CORE
+    // ---------------------
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
-    // Compose
+    // ---------------------
+    // COMPOSE
+    // ---------------------
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -56,16 +60,28 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.material3)
 
-    // Navigation (Typed Routes)
+    // ---------------------
+    // NAVIGATION + SERIALIZATION
+    // ---------------------
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
 
-    // Hilt
+    // ---------------------
+    // PAGING  (για PagingData + LazyPagingItems + collectAsLazyPagingItems)
+    // ---------------------
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
+
+    // ---------------------
+    // HILT
+    // ---------------------
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    // Modules
+    // ---------------------
+    // MODULES
+    // ---------------------
     implementation(project(":core:model"))
     implementation(project(":core:domain"))
     implementation(project(":core:network"))
@@ -76,6 +92,8 @@ dependencies {
     implementation(project(":feature:heroes"))
     implementation(project(":feature:hero-details"))
 
-    // Testing
+    // ---------------------
+    // TESTS
+    // ---------------------
     testImplementation(libs.junit)
 }

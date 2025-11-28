@@ -2,29 +2,42 @@ package com.kostas.kostasapp.feature.heroes
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.kostas.kostasapp.core.domain.repository.SquadRepository
-import com.kostas.kostasapp.core.domain.usecase.GetHeroDetailsUseCase
 import com.kostas.kostasapp.core.domain.usecase.GetPagedHeroesUseCase
 import com.kostas.kostasapp.core.domain.usecase.ObserveSquadUseCase
 import com.kostas.kostasapp.core.model.Hero
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class HeroesViewModel @Inject constructor(
-    private val getPagedHeroes: GetPagedHeroesUseCase,
-    observeSquad: ObserveSquadUseCase
+    getPagedHeroesUseCase: GetPagedHeroesUseCase,
+    private val observeSquadUseCase: ObserveSquadUseCase
 ) : ViewModel() {
 
-    val squad = observeSquad().stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5_000),
-        emptyList()
-    )
 
-    val heroesPaging = getPagedHeroes()
-        .cachedIn(viewModelScope)
+    val heroesPaging: Flow<PagingData<Hero>> =
+        getPagedHeroesUseCase().cachedIn(viewModelScope)
+
+    private val _uiState = MutableStateFlow(HeroesUiState())
+    val uiState: StateFlow<HeroesUiState> = _uiState.asStateFlow()
+
+    init {
+        observeSquad()
+    }
+
+    private fun observeSquad() {
+        viewModelScope.launch {
+            observeSquadUseCase().collect { squad ->
+                _uiState.update { it.copy(squad = squad) }
+            }
+        }
+    }
 }

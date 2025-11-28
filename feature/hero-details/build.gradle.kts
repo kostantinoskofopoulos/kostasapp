@@ -41,4 +41,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation("androidx.paging:paging-compose:1.0.0-alpha20")
+    implementation(libs.androidx.material.icons.core)
+    implementation(libs.androidx.material.icons.extended)
 }
