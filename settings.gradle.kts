@@ -1,18 +1,12 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        google()
         mavenCentral()
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
@@ -20,18 +14,18 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "kostasapp"
+
+// APP
 include(":app")
 
-
-
-// --- CORE ---
+// CORE
 include(":core:model")
-include(":core:network")
-include(":core:database")
 include(":core:domain")
 include(":core:data")
+include(":core:database")
 include(":core:designsystem")
+include(":core:network")
 
-// --- FEATURE ---
+// FEATURES
 include(":feature:heroes")
 include(":feature:hero-details")
