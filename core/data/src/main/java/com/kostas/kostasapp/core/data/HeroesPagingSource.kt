@@ -18,7 +18,9 @@ class HeroesPagingSource(
                 pageSize = params.loadSize,
                 name = query
             )
-            val heroes = response.data
+
+            // Αλφαβητική σειρά μέσα στο page
+            val heroes = response.data.sortedBy { it.name.orEmpty() }
 
             LoadResult.Page(
                 data = heroes,

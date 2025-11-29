@@ -50,9 +50,8 @@ fun AppNavGraph(navController: NavHostController) {
             val args = entry.toRoute<HeroDetailsScreen>()
             HeroDetailsRoute(
                 heroId = args.heroId,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack()}
             )
         }
     }
 }
-

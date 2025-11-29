@@ -2,7 +2,8 @@ package com.kostas.kostasapp.feature.hero_details
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
@@ -15,10 +16,10 @@ fun HeroDetailsRoute(
         viewModel.load(heroId)
     }
 
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     HeroDetailsScreen(
-        uiState = uiState.value,
+        uiState = uiState,
         onBack = onBack,
         onRecruitClick = viewModel::onRecruitClick,
         onFireClick = viewModel::onFireClick,

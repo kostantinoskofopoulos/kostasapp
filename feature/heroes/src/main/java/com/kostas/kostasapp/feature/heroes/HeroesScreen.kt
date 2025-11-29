@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -59,7 +58,7 @@ fun HeroesScreen(
                 .padding(innerPadding)
         ) {
 
-            // ---------- My Squad ----------
+            // -------- My Squad section --------
             if (uiState.squad.isNotEmpty()) {
                 Text(
                     text = "My Squad",
@@ -72,7 +71,10 @@ fun HeroesScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(uiState.squad) { hero ->
+                    items(
+                        count = uiState.squad.size
+                    ) { index ->
+                        val hero = uiState.squad[index]
                         SquadHeroChip(
                             hero = hero,
                             onClick = { onHeroClick(hero.id) }
@@ -85,7 +87,7 @@ fun HeroesScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // ---------- Heroes list ----------
+            // -------- Main heroes list --------
             HeroesList(
                 heroes = heroes,
                 onHeroClick = onHeroClick,
@@ -107,8 +109,7 @@ private fun HeroesList(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
-        // ΠΡΟΣΟΧΗ: Χρησιμοποιούμε count + index,
-        // γιατί η δική σου βιβλιοθήκη δεν έχει items(LazyPagingItems)
+        // Χρησιμοποιούμε count + index, όπως στο sample του Paging
         items(
             count = heroes.itemCount
         ) { index ->

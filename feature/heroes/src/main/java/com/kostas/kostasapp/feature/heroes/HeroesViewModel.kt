@@ -22,10 +22,11 @@ class HeroesViewModel @Inject constructor(
     private val observeSquadUseCase: ObserveSquadUseCase
 ) : ViewModel() {
 
-
+    // Paging flow για τη λίστα χαρακτήρων
     val heroesPaging: Flow<PagingData<Hero>> =
         getPagedHeroesUseCase().cachedIn(viewModelScope)
 
+    // UI state για τα πράγματα που δεν είναι paging (My Squad κλπ)
     private val _uiState = MutableStateFlow(HeroesUiState())
     val uiState: StateFlow<HeroesUiState> = _uiState.asStateFlow()
 
@@ -36,7 +37,9 @@ class HeroesViewModel @Inject constructor(
     private fun observeSquad() {
         viewModelScope.launch {
             observeSquadUseCase().collect { squad ->
-                _uiState.update { it.copy(squad = squad) }
+                // My Squad σε αλφαβητική σειρά
+                val sorted = squad.sortedBy { it.name.orEmpty() }
+                _uiState.update { it.copy(squad = sorted) }
             }
         }
     }

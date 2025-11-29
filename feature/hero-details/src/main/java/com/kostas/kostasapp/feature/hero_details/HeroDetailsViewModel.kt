@@ -7,12 +7,12 @@ import com.kostas.kostasapp.core.domain.usecase.GetHeroDetailsUseCase
 import com.kostas.kostasapp.core.domain.usecase.ToggleSquadUseCase
 import com.kostas.kostasapp.core.model.Hero
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class HeroDetailsViewModel @Inject constructor(
@@ -62,7 +62,6 @@ class HeroDetailsViewModel @Inject constructor(
     }
 
     fun onFireClick() {
-        // just show confirm dialog
         _uiState.update { it.copy(showFireConfirmDialog = true) }
     }
 
