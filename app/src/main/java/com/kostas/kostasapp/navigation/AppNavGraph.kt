@@ -3,6 +3,9 @@ package com.kostas.kostasapp.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -48,8 +51,16 @@ fun AppNavGraph(navController: NavHostController) {
 
         // DETAILS SCREEN
         composable<HeroDetailsScreen> {
+            // Guard against multiple rapid back taps causing empty back stack / blank screen
+            var isNavigatingBack by remember { mutableStateOf(false) }
+
             HeroDetailsRoute(
-                onBack = { navController.navigateUp() }
+                onBack = {
+                    if (!isNavigatingBack) {
+                        isNavigatingBack = true
+                        navController.navigateUp()
+                    }
+                }
             )
         }
     }

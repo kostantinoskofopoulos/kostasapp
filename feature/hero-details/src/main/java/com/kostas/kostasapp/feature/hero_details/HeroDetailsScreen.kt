@@ -28,10 +28,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,7 +35,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-
 
 @Composable
 fun HeroDetailsScreen(
@@ -50,14 +45,6 @@ fun HeroDetailsScreen(
     onFireConfirm: () -> Unit,
     onFireDismiss: () -> Unit
 ) {
-
-    var backInProgress by remember { mutableStateOf(false) }
-
-    val safeOnBack: () -> Unit = {
-        if (!backInProgress) {
-            onBack()
-        }
-    }
 
     val hero = uiState.hero
 
@@ -114,7 +101,7 @@ fun HeroDetailsScreen(
                             )
 
                             IconButton(
-                                onClick = safeOnBack,
+                                onClick = onBack,
                                 modifier = Modifier
                                     .align(Alignment.TopStart)
                                     .padding(8.dp)
