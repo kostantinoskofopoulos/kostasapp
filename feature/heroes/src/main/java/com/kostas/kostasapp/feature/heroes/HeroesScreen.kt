@@ -27,11 +27,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import coil.compose.AsyncImage
 import com.kostas.kostasapp.core.model.Hero
+import com.kostas.kostasapp.heroes.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +46,7 @@ fun HeroesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Superhero Squad Maker") },
+                title = { Text(stringResource(R.string.heroes_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -61,7 +63,7 @@ fun HeroesScreen(
             // -------- My Squad section --------
             if (uiState.squad.isNotEmpty()) {
                 Text(
-                    text = "My Squad",
+                    text = stringResource(R.string.heroes_my_squad),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier
                         .padding(horizontal = 16.dp, vertical = 8.dp)

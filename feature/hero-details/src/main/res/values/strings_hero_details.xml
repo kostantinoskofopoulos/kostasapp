@@ -1,0 +1,26 @@
+
+<resources>
+
+    <!-- Hero details -->
+    <string name="hero_details_close">Close</string>
+
+    <!-- Buttons -->
+    <string name="hero_details_fire_from_squad">🔥 Fire from Squad</string>
+    <string name="hero_details_hire_to_squad">💪 Hire to Squad</string>
+
+    <!-- Sections -->
+    <string name="hero_details_section_films">Films</string>
+    <string name="hero_details_section_tv_shows">TV Shows</string>
+    <string name="hero_details_section_video_games">Video Games</string>
+    <string name="hero_details_section_allies">Allies</string>
+    <string name="hero_details_section_enemies">Enemies</string>
+
+    <!-- Fire dialog -->
+    <string name="hero_details_dialog_fire_title">Remove from Squad</string>
+    <string name="hero_details_dialog_fire_message">
+        Are you sure you want to fire this hero from your squad?
+    </string>
+    <string name="hero_details_dialog_fire_confirm">Yes, fire</string>
+    <string name="hero_details_dialog_fire_cancel">Cancel</string>
+
+</resources>

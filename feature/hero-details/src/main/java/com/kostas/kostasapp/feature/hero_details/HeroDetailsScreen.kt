@@ -1,5 +1,6 @@
 package com.kostas.kostasapp.feature.hero_details
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,20 +21,22 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.kostas.kostasapp.hero_details.R
 
 @Composable
 fun HeroDetailsScreen(
@@ -107,7 +110,7 @@ fun HeroDetailsScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.Close,
-                                    contentDescription = "Close",
+                                    contentDescription = stringResource(R.string.hero_details_close),
                                     tint = Color.White
                                 )
                             }
@@ -136,12 +139,11 @@ fun HeroDetailsScreen(
                             val buttonClick: () -> Unit
 
                             if (isInSquad) {
-                                buttonLabel = "🔥 Fire from Squad"
-
+                                buttonLabel = stringResource(R.string.hero_details_fire_from_squad)
                                 buttonColor = MaterialTheme.colorScheme.error
                                 buttonClick = onFireClick
                             } else {
-                                buttonLabel = "💪 Hire to Squad"
+                                buttonLabel = stringResource(R.string.hero_details_hire_to_squad)
                                 buttonColor = MaterialTheme.colorScheme.primary
                                 buttonClick = onRecruitClick
                             }
@@ -163,11 +165,26 @@ fun HeroDetailsScreen(
                     }
 
                     // ---------- DETAILS SECTIONS ----------
-                    section("Films", hero.films)
-                    section("TV Shows", hero.tvShows)
-                    section("Video Games", hero.videoGames)
-                    section("Allies", hero.allies)
-                    section("Enemies", hero.enemies)
+                    section(
+                        titleRes = R.string.hero_details_section_films,
+                        values = hero.films
+                    )
+                    section(
+                        titleRes = R.string.hero_details_section_tv_shows,
+                        values = hero.tvShows
+                    )
+                    section(
+                        titleRes = R.string.hero_details_section_video_games,
+                        values = hero.videoGames
+                    )
+                    section(
+                        titleRes = R.string.hero_details_section_allies,
+                        values = hero.allies
+                    )
+                    section(
+                        titleRes = R.string.hero_details_section_enemies,
+                        values = hero.enemies
+                    )
                 }
             }
         }
@@ -176,9 +193,9 @@ fun HeroDetailsScreen(
         if (uiState.showFireConfirmDialog) {
             AlertDialog(
                 onDismissRequest = onFireDismiss,
-                title = { Text("Remove from Squad") },
+                title = { Text(stringResource(R.string.hero_details_dialog_fire_title)) },
                 text = {
-                    Text("Are you sure you want to fire this hero from your squad?")
+                    Text(stringResource(R.string.hero_details_dialog_fire_message))
                 },
                 confirmButton = {
                     TextButton(onClick = onFireConfirm) {
@@ -187,12 +204,12 @@ fun HeroDetailsScreen(
                             contentDescription = null
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Yes, fire")
+                        Text(stringResource(R.string.hero_details_dialog_fire_confirm))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onFireDismiss) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.hero_details_dialog_fire_cancel))
                     }
                 }
             )
@@ -201,14 +218,13 @@ fun HeroDetailsScreen(
 }
 
 private fun LazyListScope.section(
-    title: String,
+    @StringRes titleRes: Int,
     values: List<String>
 ) {
     if (values.isNotEmpty()) {
         item {
-            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = title,
+                text = stringResource(id = titleRes),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
