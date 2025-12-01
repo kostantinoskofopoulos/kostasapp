@@ -37,42 +37,37 @@ class SquadDataStoreRepository @Inject constructor(
         heroes.map { gson.toJson(it) }.toSet()
 
     override val squad: Flow<List<Hero>> =
-        context.squadDataStore.data.map { prefs ->
-            val set = prefs[SQUAD_HEROES_KEY] ?: emptySet()
-            decodeSquad(set)
+        context.squadDataStore.data
+            .map { prefs ->
+                val rawSet = prefs[SQUAD_HEROES_KEY] ?: emptySet()
+                decodeSquad(rawSet)
+            }
+
+    private suspend fun updateSquad(
+        transform: (List<Hero>) -> List<Hero>
+    ) {
+        context.squadDataStore.edit { prefs ->
+            val currentRaw = prefs[SQUAD_HEROES_KEY] ?: emptySet()
+            val currentHeroes = decodeSquad(currentRaw)
+            val updated = transform(currentHeroes)
+            prefs[SQUAD_HEROES_KEY] = encodeSquad(updated)
         }
+    }
 
     override suspend fun addToSquad(hero: Hero) {
-        context.squadDataStore.edit { prefs ->
-            val currentSet = prefs[SQUAD_HEROES_KEY] ?: emptySet()
-            val currentHeroes = decodeSquad(currentSet)
-
-            if (currentHeroes.any { it.id == hero.id }) return@edit
-
-            val updated = currentHeroes + hero
-            prefs[SQUAD_HEROES_KEY] = encodeSquad(updated)
+        updateSquad { current ->
+            if (current.any { it.id == hero.id }) current else current + hero
         }
     }
 
     override suspend fun removeFromSquad(hero: Hero) {
-        context.squadDataStore.edit { prefs ->
-            val currentSet = prefs[SQUAD_HEROES_KEY] ?: emptySet()
-            val currentHeroes = decodeSquad(currentSet)
-
-            val updated = currentHeroes.filterNot { it.id == hero.id }
-            prefs[SQUAD_HEROES_KEY] = encodeSquad(updated)
+        updateSquad { current ->
+            current.filterNot { it.id == hero.id }
         }
     }
 
     override suspend fun isInSquad(heroId: Int): Boolean {
-        val heroes = context.squadDataStore.data
-            .map { prefs ->
-                val set = prefs[SQUAD_HEROES_KEY] ?: emptySet()
-                decodeSquad(set)
-            }
-            .firstOrNull()
-            .orEmpty()
-
+        val heroes = squad.firstOrNull().orEmpty()
         return heroes.any { it.id == heroId }
     }
 }

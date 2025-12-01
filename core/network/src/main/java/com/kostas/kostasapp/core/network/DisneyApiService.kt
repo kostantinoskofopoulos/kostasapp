@@ -6,8 +6,14 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+/**
+ * Retrofit service definition for the Disney API.
+ */
 interface DisneyApiService {
 
+    /**
+     * Fetches a paginated list of characters.
+     */
     @GET("character")
     suspend fun getCharacters(
         @Query("page") page: Int = 1,
@@ -15,6 +21,9 @@ interface DisneyApiService {
         @Query("name") name: String? = null
     ): CharactersResponseDto
 
+    /**
+     * Fetches details for a single character by [id].
+     */
     @GET("character/{id}")
     suspend fun getCharacterById(
         @Path("id") id: Int

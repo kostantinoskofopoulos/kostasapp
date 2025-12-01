@@ -7,18 +7,19 @@ import com.kostas.kostasapp.core.model.Hero
 import com.kostas.kostasapp.core.network.DisneyApiService
 import kotlinx.coroutines.CancellationException
 
-class HeroesPagingSource(
+internal class HeroesPagingSource(
     private val api: DisneyApiService,
-    private val query: String?
+    private val nameQuery: String?
 ) : PagingSource<Int, Hero>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Hero> =
         try {
-            val page = params.key ?: 1
+            val page = params.key ?: FIRST_PAGE
+
             val response = api.getCharacters(
                 page = page,
                 pageSize = params.loadSize,
-                name = query
+                name = nameQuery?.ifBlank { null }
             )
 
             val heroes = response.data
@@ -27,7 +28,7 @@ class HeroesPagingSource(
 
             LoadResult.Page(
                 data = heroes,
-                prevKey = if (page == 1) null else page - 1,
+                prevKey = if (page == FIRST_PAGE) null else page - 1,
                 nextKey = if (heroes.isEmpty()) null else page + 1
             )
         } catch (e: Exception) {
@@ -37,7 +38,11 @@ class HeroesPagingSource(
 
     override fun getRefreshKey(state: PagingState<Int, Hero>): Int? =
         state.anchorPosition?.let { anchor ->
-            val page = state.closestPageToPosition(anchor)
-            page?.prevKey?.plus(1) ?: page?.nextKey?.minus(1)
+            val anchorPage = state.closestPageToPosition(anchor)
+            anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
         }
+
+    private companion object {
+        const val FIRST_PAGE = 1
+    }
 }

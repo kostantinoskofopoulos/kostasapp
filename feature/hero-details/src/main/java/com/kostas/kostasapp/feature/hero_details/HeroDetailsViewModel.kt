@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.kostas.kostasapp.core.domain.repository.SquadRepository
 import com.kostas.kostasapp.core.domain.usecase.GetHeroDetailsUseCase
 import com.kostas.kostasapp.core.domain.usecase.ToggleSquadUseCase
+import com.kostas.kostasapp.core.model.Hero
 import com.kostas.kostasapp.hero_details.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -23,7 +24,6 @@ class HeroDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    // heroId from navigation args (HeroDetailsScreen(heroId))
     private val heroId: Int = savedStateHandle.get<Int>("heroId")
         ?: error("heroId is required")
 
@@ -35,7 +35,6 @@ class HeroDetailsViewModel @Inject constructor(
     }
 
     private fun load() {
-        // extra guard: αν ήδη έχουμε τον σωστό hero και δεν γίνεται loading, μην ξαναφορτώσεις
         if (_uiState.value.hero?.id == heroId && !_uiState.value.isLoading) return
 
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
@@ -66,7 +65,7 @@ class HeroDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun buildSections(hero: com.kostas.kostasapp.core.model.Hero): List<HeroDetailsSection> {
+    private fun buildSections(hero: Hero): List<HeroDetailsSection> {
         return listOf(
             HeroDetailsSection(
                 titleRes = R.string.hero_details_section_films,

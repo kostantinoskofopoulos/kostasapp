@@ -88,83 +88,23 @@ fun HeroDetailsScreen(
                     verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
 
-                    // ---------- IMAGE + Χ BACK ----------
                     item {
-                        Box(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            AsyncImage(
-                                model = hero.imageUrl,
-                                contentDescription = hero.name,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(260.dp),
-                                contentScale = ContentScale.Crop
-                            )
-
-                            IconButton(
-                                onClick = onBack,
-                                modifier = Modifier
-                                    .align(Alignment.TopStart)
-                                    .padding(8.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Close,
-                                    contentDescription = stringResource(R.string.hero_details_close),
-                                    tint = Color.White
-                                )
-                            }
-                        }
+                        HeroDetailsHeader(
+                            name = hero.name,
+                            imageUrl = hero.imageUrl,
+                            onBack = onBack
+                        )
                     }
 
-                    // ---------- NAME + BIG BUTTON ----------
                     item {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 16.dp)
-                        ) {
-                            Text(
-                                text = hero.name.orEmpty(),
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            val isInSquad = uiState.isInSquad
-
-                            val buttonLabel: String
-                            val buttonColor: Color
-                            val buttonClick: () -> Unit
-
-                            if (isInSquad) {
-                                buttonLabel = stringResource(R.string.hero_details_fire_from_squad)
-                                buttonColor = MaterialTheme.colorScheme.error
-                                buttonClick = onFireClick
-                            } else {
-                                buttonLabel = stringResource(R.string.hero_details_hire_to_squad)
-                                buttonColor = MaterialTheme.colorScheme.primary
-                                buttonClick = onRecruitClick
-                            }
-
-                            Button(
-                                onClick = buttonClick,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(44.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = buttonColor,
-                                    contentColor = Color.White
-                                ),
-                                shape = MaterialTheme.shapes.small
-                            ) {
-                                Text(buttonLabel)
-                            }
-                        }
+                        HeroDetailsPrimaryInfo(
+                            name = hero.name,
+                            isInSquad = uiState.isInSquad,
+                            onRecruitClick = onRecruitClick,
+                            onFireClick = onFireClick
+                        )
                     }
 
-                    // ---------- DETAILS SECTIONS ----------
                     uiState.sections.forEach { section ->
                         detailsSection(
                             titleRes = section.titleRes,
@@ -175,32 +115,127 @@ fun HeroDetailsScreen(
             }
         }
 
-        // ---------- CONFIRM DIALOG for Fire from Squad ----------
         if (uiState.showFireConfirmDialog) {
-            AlertDialog(
-                onDismissRequest = onFireDismiss,
-                title = { Text(stringResource(R.string.hero_details_dialog_fire_title)) },
-                text = {
-                    Text(stringResource(R.string.hero_details_dialog_fire_message))
-                },
-                confirmButton = {
-                    TextButton(onClick = onFireConfirm) {
-                        Icon(
-                            imageVector = Icons.Filled.Whatshot,
-                            contentDescription = null
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(stringResource(R.string.hero_details_dialog_fire_confirm))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = onFireDismiss) {
-                        Text(stringResource(R.string.hero_details_dialog_fire_cancel))
-                    }
-                }
+            HeroDetailsFireDialog(
+                onConfirm = onFireConfirm,
+                onDismiss = onFireDismiss
             )
         }
     }
+}
+
+@Composable
+private fun HeroDetailsHeader(
+    name: String?,
+    imageUrl: String?,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = name,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(260.dp),
+            contentScale = ContentScale.Crop
+        )
+
+        IconButton(
+            onClick = onBack,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = stringResource(R.string.hero_details_close),
+                tint = Color.White
+            )
+        }
+    }
+}
+
+@Composable
+private fun HeroDetailsPrimaryInfo(
+    name: String?,
+    isInSquad: Boolean,
+    onRecruitClick: () -> Unit,
+    onFireClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+    ) {
+        Text(
+            text = name.orEmpty(),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        val buttonLabel: String
+        val buttonColor: Color
+        val buttonClick: () -> Unit
+
+        if (isInSquad) {
+            buttonLabel = stringResource(R.string.hero_details_fire_from_squad)
+            buttonColor = MaterialTheme.colorScheme.error
+            buttonClick = onFireClick
+        } else {
+            buttonLabel = stringResource(R.string.hero_details_hire_to_squad)
+            buttonColor = MaterialTheme.colorScheme.primary
+            buttonClick = onRecruitClick
+        }
+
+        Button(
+            onClick = buttonClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = buttonColor,
+                contentColor = Color.White
+            ),
+            shape = MaterialTheme.shapes.small
+        ) {
+            Text(buttonLabel)
+        }
+    }
+}
+
+@Composable
+private fun HeroDetailsFireDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.hero_details_dialog_fire_title)) },
+        text = {
+            Text(stringResource(R.string.hero_details_dialog_fire_message))
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Icon(
+                    imageVector = Icons.Filled.Whatshot,
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(stringResource(R.string.hero_details_dialog_fire_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.hero_details_dialog_fire_cancel))
+            }
+        }
+    )
 }
 
 private fun LazyListScope.detailsSection(

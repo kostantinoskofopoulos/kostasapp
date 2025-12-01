@@ -47,10 +47,9 @@ class HeroesViewModel @Inject constructor(
                     }
                 }
                 .collect { squad ->
-                    val sorted = squad.sortedBy { it.name.orEmpty() }
                     _uiState.update {
                         it.copy(
-                            squad = sorted,
+                            squad = squad,
                             isSquadLoading = false,
                             squadErrorMessage = null
                         )

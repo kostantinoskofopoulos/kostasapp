@@ -1,15 +1,18 @@
 package com.kostas.kostasapp.feature.heroes
 
 import androidx.compose.runtime.Composable
-import androidx.paging.compose.LazyPagingItems
-import com.kostas.kostasapp.core.model.Hero
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
 
 @Composable
 fun HeroesRoute(
-    uiState: HeroesUiState,
-    heroes: LazyPagingItems<Hero>,
-    onHeroClick: (Int) -> Unit
+    onHeroClick: (Int) -> Unit,
+    viewModel: HeroesViewModel = hiltViewModel()
 ) {
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+    val heroes = viewModel.heroesPaging.collectAsLazyPagingItems()
+
     HeroesScreen(
         uiState = uiState,
         heroes = heroes,

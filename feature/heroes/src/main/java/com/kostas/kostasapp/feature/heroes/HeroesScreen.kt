@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -34,6 +35,7 @@ import androidx.paging.compose.LazyPagingItems
 import coil.compose.AsyncImage
 import com.kostas.kostasapp.core.model.Hero
 import com.kostas.kostasapp.heroes.R
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,9 +76,9 @@ fun HeroesScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(
-                        count = uiState.squad.size
-                    ) { index ->
-                        val hero = uiState.squad[index]
+                        items = uiState.squad,
+                        key = { it.id }
+                    ) { hero ->
                         SquadHeroChip(
                             hero = hero,
                             onClick = { onHeroClick(hero.id) }
@@ -112,7 +114,8 @@ private fun HeroesList(
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         items(
-            count = heroes.itemCount
+            count = heroes.itemCount,
+            key = { index -> heroes[index]?.id ?: index }
         ) { index ->
             val hero = heroes[index]
             if (hero != null) {
