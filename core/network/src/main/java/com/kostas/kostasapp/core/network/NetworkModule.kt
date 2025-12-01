@@ -10,11 +10,11 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
+private const val BASE_URL = "https://api.disneyapi.dev/"
+
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
-    private const val BASE_URL = "https://api.disneyapi.dev/"
 
     @Provides
     @Singleton

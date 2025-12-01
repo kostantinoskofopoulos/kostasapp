@@ -28,6 +28,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,7 +39,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.kostas.kostasapp.core.model.Hero
+
 
 @Composable
 fun HeroDetailsScreen(
@@ -46,6 +50,15 @@ fun HeroDetailsScreen(
     onFireConfirm: () -> Unit,
     onFireDismiss: () -> Unit
 ) {
+
+    var backInProgress by remember { mutableStateOf(false) }
+
+    val safeOnBack: () -> Unit = {
+        if (!backInProgress) {
+            onBack()
+        }
+    }
+
     val hero = uiState.hero
 
     Scaffold { padding ->
@@ -96,12 +109,12 @@ fun HeroDetailsScreen(
                                 contentDescription = hero.name,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(260.dp),   // μεγάλο banner πάνω
+                                    .height(260.dp),
                                 contentScale = ContentScale.Crop
                             )
 
                             IconButton(
-                                onClick = onBack,      // ΕΔΩ γυρνάει πίσω
+                                onClick = safeOnBack,
                                 modifier = Modifier
                                     .align(Alignment.TopStart)
                                     .padding(8.dp)
@@ -155,7 +168,7 @@ fun HeroDetailsScreen(
                                 onClick = buttonClick,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(44.dp),      // full-width, αλλά όχι τεράστιο
+                                    .height(44.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = buttonColor,
                                     contentColor = Color.White
@@ -182,7 +195,7 @@ fun HeroDetailsScreen(
             }
         }
 
-        // ---------- CONFIRM DIALOG για Fire from Squad ----------
+        // ---------- CONFIRM DIALOG for Fire from Squad ----------
         if (uiState.showFireConfirmDialog) {
             AlertDialog(
                 onDismissRequest = onFireDismiss,
@@ -209,8 +222,6 @@ fun HeroDetailsScreen(
         }
     }
 }
-
-// ---------- Sections για films / tv shows / games / allies / enemies ----------
 
 private fun LazyListScope.section(
     title: String,

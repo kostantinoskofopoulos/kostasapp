@@ -7,7 +7,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kostas.kostasapp.feature.hero_details.HeroDetailsRoute
 import com.kostas.kostasapp.feature.heroes.HeroesRoute
@@ -40,17 +39,17 @@ fun AppNavGraph(navController: NavHostController) {
                 uiState = uiState,
                 heroes = heroesPaging,
                 onHeroClick = { id ->
-                    navController.navigate(HeroDetailsScreen(id))
+                    navController.navigate(HeroDetailsScreen(id)) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
 
         // DETAILS SCREEN
-        composable<HeroDetailsScreen> { entry ->
-            val args = entry.toRoute<HeroDetailsScreen>()
+        composable<HeroDetailsScreen> {
             HeroDetailsRoute(
-                heroId = args.heroId,
-                onBack = { navController.popBackStack()}
+                onBack = { navController.navigateUp() }
             )
         }
     }

@@ -1,10 +1,8 @@
 package com.kostas.kostasapp.core.network.model
 
-import com.kostas.kostasapp.core.model.Hero
-
-data class CharactersResponse(
+data class CharactersResponseDto(
     val count: Int,
     val totalPages: Int,
     val nextPage: String?,
-    val data: List<Hero>
+    val data: List<HeroDto>
 )

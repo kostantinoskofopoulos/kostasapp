@@ -1,11 +1,11 @@
 package com.kostas.kostasapp.feature.hero_details
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kostas.kostasapp.core.domain.repository.SquadRepository
 import com.kostas.kostasapp.core.domain.usecase.GetHeroDetailsUseCase
 import com.kostas.kostasapp.core.domain.usecase.ToggleSquadUseCase
-import com.kostas.kostasapp.core.model.Hero
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,13 +18,23 @@ import kotlinx.coroutines.launch
 class HeroDetailsViewModel @Inject constructor(
     private val getHeroDetails: GetHeroDetailsUseCase,
     private val toggleSquad: ToggleSquadUseCase,
-    private val squadRepository: SquadRepository
+    private val squadRepository: SquadRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    //  heroId from  navigation args (HeroDetailsScreen(heroId))
+    private val heroId: Int = savedStateHandle.get<Int>("heroId")
+        ?: error("heroId is required")
 
     private val _uiState = MutableStateFlow(HeroDetailsUiState())
     val uiState: StateFlow<HeroDetailsUiState> = _uiState.asStateFlow()
 
-    fun load(heroId: Int) {
+    init {
+        load()
+    }
+
+    private fun load() {
+        // extra guard
         if (_uiState.value.hero?.id == heroId && !_uiState.value.isLoading) return
 
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }

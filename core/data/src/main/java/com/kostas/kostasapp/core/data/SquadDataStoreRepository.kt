@@ -8,11 +8,11 @@ import com.google.gson.Gson
 import com.kostas.kostasapp.core.domain.repository.SquadRepository
 import com.kostas.kostasapp.core.model.Hero
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val SQUAD_DATASTORE_NAME = "squad_prefs"
 private val SQUAD_HEROES_KEY = stringSetPreferencesKey("squad_heroes")
@@ -28,13 +28,11 @@ class SquadDataStoreRepository @Inject constructor(
 
     private val gson = Gson()
 
-    // Helper: decode set<String> -> List<Hero>
     private fun decodeSquad(raw: Set<String>): List<Hero> =
         raw.mapNotNull { json ->
             runCatching { gson.fromJson(json, Hero::class.java) }.getOrNull()
         }
 
-    // Helper: encode List<Hero> -> set<String>
     private fun encodeSquad(heroes: List<Hero>): Set<String> =
         heroes.map { gson.toJson(it) }.toSet()
 
@@ -49,7 +47,6 @@ class SquadDataStoreRepository @Inject constructor(
             val currentSet = prefs[SQUAD_HEROES_KEY] ?: emptySet()
             val currentHeroes = decodeSquad(currentSet)
 
-            // Αν υπάρχει ήδη, μην τον ξαναπροσθέσεις
             if (currentHeroes.any { it.id == hero.id }) return@edit
 
             val updated = currentHeroes + hero

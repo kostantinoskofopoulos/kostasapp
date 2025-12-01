@@ -16,9 +16,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DataModule {
 
-    // -------------------------
-    // REPOSITORIES
-    // -------------------------
     @Provides
     @Singleton
     fun provideHeroesRepository(
@@ -31,9 +28,6 @@ object DataModule {
         impl: SquadDataStoreRepository
     ): SquadRepository = impl
 
-    // -------------------------
-    // USE CASES
-    // -------------------------
     @Provides
     fun provideGetPagedHeroesUseCase(
         repo: HeroesRepository

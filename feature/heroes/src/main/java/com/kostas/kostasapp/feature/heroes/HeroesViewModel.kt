@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -22,12 +23,12 @@ class HeroesViewModel @Inject constructor(
     private val observeSquadUseCase: ObserveSquadUseCase
 ) : ViewModel() {
 
-    // Paging flow για τη λίστα χαρακτήρων
     val heroesPaging: Flow<PagingData<Hero>> =
         getPagedHeroesUseCase().cachedIn(viewModelScope)
 
-    // UI state για τα πράγματα που δεν είναι paging (My Squad κλπ)
-    private val _uiState = MutableStateFlow(HeroesUiState())
+    private val _uiState = MutableStateFlow(
+        HeroesUiState(isSquadLoading = true)
+    )
     val uiState: StateFlow<HeroesUiState> = _uiState.asStateFlow()
 
     init {
@@ -36,11 +37,25 @@ class HeroesViewModel @Inject constructor(
 
     private fun observeSquad() {
         viewModelScope.launch {
-            observeSquadUseCase().collect { squad ->
-                // My Squad σε αλφαβητική σειρά
-                val sorted = squad.sortedBy { it.name.orEmpty() }
-                _uiState.update { it.copy(squad = sorted) }
-            }
+            observeSquadUseCase()
+                .catch { throwable ->
+                    _uiState.update {
+                        it.copy(
+                            isSquadLoading = false,
+                            squadErrorMessage = throwable.message ?: "Failed to load squad."
+                        )
+                    }
+                }
+                .collect { squad ->
+                    val sorted = squad.sortedBy { it.name.orEmpty() }
+                    _uiState.update {
+                        it.copy(
+                            squad = sorted,
+                            isSquadLoading = false,
+                            squadErrorMessage = null
+                        )
+                    }
+                }
         }
     }
 }

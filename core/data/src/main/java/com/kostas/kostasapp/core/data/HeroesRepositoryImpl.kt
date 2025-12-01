@@ -4,6 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.kostas.kostasapp.core.domain.repository.HeroesRepository
+import com.kostas.kostasapp.core.data.mapper.toDomain
 import com.kostas.kostasapp.core.model.Hero
 import com.kostas.kostasapp.core.network.DisneyApiService
 import kotlinx.coroutines.flow.Flow
@@ -32,5 +33,5 @@ class HeroesRepositoryImpl @Inject constructor(
         }.flow
 
     override suspend fun getHeroDetails(id: Int): Hero =
-        api.getCharacterById(id).data
+        api.getCharacterById(id).data.toDomain()
 }

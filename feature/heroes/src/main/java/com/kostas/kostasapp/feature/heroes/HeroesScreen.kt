@@ -109,7 +109,6 @@ private fun HeroesList(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
-        // Χρησιμοποιούμε count + index, όπως στο sample του Paging
         items(
             count = heroes.itemCount
         ) { index ->

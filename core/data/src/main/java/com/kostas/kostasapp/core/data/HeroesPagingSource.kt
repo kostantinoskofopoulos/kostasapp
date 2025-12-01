@@ -2,8 +2,10 @@ package com.kostas.kostasapp.core.data
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.kostas.kostasapp.core.data.mapper.toDomain
 import com.kostas.kostasapp.core.model.Hero
 import com.kostas.kostasapp.core.network.DisneyApiService
+import kotlinx.coroutines.CancellationException
 
 class HeroesPagingSource(
     private val api: DisneyApiService,
@@ -19,8 +21,9 @@ class HeroesPagingSource(
                 name = query
             )
 
-            // Αλφαβητική σειρά μέσα στο page
-            val heroes = response.data.sortedBy { it.name.orEmpty() }
+            val heroes = response.data
+                .map { it.toDomain() }
+                .sortedBy { it.name.orEmpty() }
 
             LoadResult.Page(
                 data = heroes,
@@ -28,6 +31,7 @@ class HeroesPagingSource(
                 nextKey = if (heroes.isEmpty()) null else page + 1
             )
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             LoadResult.Error(e)
         }
 
