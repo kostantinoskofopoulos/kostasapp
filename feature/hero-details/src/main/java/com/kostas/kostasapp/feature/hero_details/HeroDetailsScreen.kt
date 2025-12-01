@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -133,20 +132,16 @@ fun HeroDetailsScreen(
                             val isInSquad = uiState.isInSquad
 
                             val buttonLabel: String
-                            val buttonIcon = if (isInSquad) {
-                                Icons.Filled.Whatshot
-                            } else {
-                                Icons.Filled.FitnessCenter
-                            }
                             val buttonColor: Color
                             val buttonClick: () -> Unit
 
                             if (isInSquad) {
-                                buttonLabel = "Fire from Squad"
+                                buttonLabel = "🔥 Fire from Squad"
+
                                 buttonColor = MaterialTheme.colorScheme.error
                                 buttonClick = onFireClick
                             } else {
-                                buttonLabel = "Hire to Squad"
+                                buttonLabel = "💪 Hire to Squad"
                                 buttonColor = MaterialTheme.colorScheme.primary
                                 buttonClick = onRecruitClick
                             }
@@ -162,11 +157,6 @@ fun HeroDetailsScreen(
                                 ),
                                 shape = MaterialTheme.shapes.small
                             ) {
-                                Icon(
-                                    imageVector = buttonIcon,
-                                    contentDescription = null
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(buttonLabel)
                             }
                         }
