@@ -165,26 +165,12 @@ fun HeroDetailsScreen(
                     }
 
                     // ---------- DETAILS SECTIONS ----------
-                    section(
-                        titleRes = R.string.hero_details_section_films,
-                        values = hero.films
-                    )
-                    section(
-                        titleRes = R.string.hero_details_section_tv_shows,
-                        values = hero.tvShows
-                    )
-                    section(
-                        titleRes = R.string.hero_details_section_video_games,
-                        values = hero.videoGames
-                    )
-                    section(
-                        titleRes = R.string.hero_details_section_allies,
-                        values = hero.allies
-                    )
-                    section(
-                        titleRes = R.string.hero_details_section_enemies,
-                        values = hero.enemies
-                    )
+                    uiState.sections.forEach { section ->
+                        detailsSection(
+                            titleRes = section.titleRes,
+                            values = section.values
+                        )
+                    }
                 }
             }
         }
@@ -217,7 +203,7 @@ fun HeroDetailsScreen(
     }
 }
 
-private fun LazyListScope.section(
+private fun LazyListScope.detailsSection(
     @StringRes titleRes: Int,
     values: List<String>
 ) {

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.kostas.kostasapp.core.domain.repository.SquadRepository
 import com.kostas.kostasapp.core.domain.usecase.GetHeroDetailsUseCase
 import com.kostas.kostasapp.core.domain.usecase.ToggleSquadUseCase
+import com.kostas.kostasapp.hero_details.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +23,7 @@ class HeroDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    //  heroId from  navigation args (HeroDetailsScreen(heroId))
+    // heroId from navigation args (HeroDetailsScreen(heroId))
     private val heroId: Int = savedStateHandle.get<Int>("heroId")
         ?: error("heroId is required")
 
@@ -34,7 +35,7 @@ class HeroDetailsViewModel @Inject constructor(
     }
 
     private fun load() {
-        // extra guard
+        // extra guard: αν ήδη έχουμε τον σωστό hero και δεν γίνεται loading, μην ξαναφορτώσεις
         if (_uiState.value.hero?.id == heroId && !_uiState.value.isLoading) return
 
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
@@ -43,11 +44,13 @@ class HeroDetailsViewModel @Inject constructor(
             try {
                 val hero = getHeroDetails(heroId)
                 val inSquad = squadRepository.isInSquad(heroId)
+                val sections = buildSections(hero)
 
                 _uiState.update {
                     it.copy(
                         hero = hero,
                         isInSquad = inSquad,
+                        sections = sections,
                         isLoading = false,
                         errorMessage = null
                     )
@@ -61,6 +64,31 @@ class HeroDetailsViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun buildSections(hero: com.kostas.kostasapp.core.model.Hero): List<HeroDetailsSection> {
+        return listOf(
+            HeroDetailsSection(
+                titleRes = R.string.hero_details_section_films,
+                values = hero.films
+            ),
+            HeroDetailsSection(
+                titleRes = R.string.hero_details_section_tv_shows,
+                values = hero.tvShows
+            ),
+            HeroDetailsSection(
+                titleRes = R.string.hero_details_section_video_games,
+                values = hero.videoGames
+            ),
+            HeroDetailsSection(
+                titleRes = R.string.hero_details_section_allies,
+                values = hero.allies
+            ),
+            HeroDetailsSection(
+                titleRes = R.string.hero_details_section_enemies,
+                values = hero.enemies
+            )
+        ).filter { it.values.isNotEmpty() }
     }
 
     fun onRecruitClick() {
