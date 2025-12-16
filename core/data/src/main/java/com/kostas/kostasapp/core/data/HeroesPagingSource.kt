@@ -37,8 +37,10 @@ internal class HeroesPagingSource(
         }
 
     override fun getRefreshKey(state: PagingState<Int, Hero>): Int? =
-        state.anchorPosition?.let { anchor ->
-            val anchorPage = state.closestPageToPosition(anchor)
+        state.anchorPosition?.let {
+            anchor ->
+            val anchorPage
+            = state.closestPageToPosition(anchor)
             anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
         }
 

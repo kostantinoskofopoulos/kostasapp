@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import com.kostas.kostasapp.core.model.Hero
 
 data class HeroDetailsSection(
-    @StringRes val titleRes: Int,
+    @field:StringRes @param:StringRes val titleRes: Int,
     val values: List<String>
 )
 
@@ -16,3 +16,9 @@ data class HeroDetailsUiState(
     val showFireConfirmDialog: Boolean = false,
     val sections: List<HeroDetailsSection> = emptyList()
 )
+
+sealed interface HeroDetailsEvent {
+    data class ShowErrorSnackbar(
+        @field:StringRes @param:StringRes val messageRes: Int
+    ) : HeroDetailsEvent
+}

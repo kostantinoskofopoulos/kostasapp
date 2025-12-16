@@ -2,14 +2,14 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.kotlinCompose)
-    alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.hiltAndroid)
     kotlin("kapt")
 }
 
 android {
     namespace = "com.kostas.kostasapp"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.kostas.kostasapp"
@@ -20,11 +20,12 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()  // 🔥 FIXED
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
 
     packaging {
@@ -61,13 +62,19 @@ dependencies {
     implementation(libs.androidx.material3)
 
     // ---------------------
-    // NAVIGATION + SERIALIZATION
+    // NAVIGATION 3 + SERIALIZATION
     // ---------------------
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.androidx.material3.adaptive.navigation3)
+    implementation(libs.kotlinx.serialization.core)
+
+
+    // implementation(libs.androidx.navigation.compose)
 
     // ---------------------
-    // PAGING  (για PagingData + LazyPagingItems + collectAsLazyPagingItems)
+    // PAGING
     // ---------------------
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
@@ -88,6 +95,8 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:database"))
     implementation(project(":core:designsystem"))
+    implementation(project(":core:image"))
+    implementation(project(":core:common"))
 
     implementation(project(":feature:heroes"))
     implementation(project(":feature:hero-details"))
@@ -96,4 +105,6 @@ dependencies {
     // TESTS
     // ---------------------
     testImplementation(libs.junit)
+
+    implementation(libs.timber)
 }

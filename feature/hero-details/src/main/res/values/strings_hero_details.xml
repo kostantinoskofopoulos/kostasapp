@@ -23,4 +23,8 @@
     <string name="hero_details_dialog_fire_confirm">Yes, fire</string>
     <string name="hero_details_dialog_fire_cancel">Cancel</string>
 
+    <string name="hero_details_generic_error">Something went wrong. Please try again.</string>
+    <string name="hero_details_toggle_squad_error">Could not update squad. Please try again.</string>
+
+
 </resources>

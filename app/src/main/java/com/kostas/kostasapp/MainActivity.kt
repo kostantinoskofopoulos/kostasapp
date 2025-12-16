@@ -3,21 +3,24 @@ package com.kostas.kostasapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.navigation.compose.rememberNavController
+import com.kostas.common.logging.Logger
 import com.kostas.kostasapp.core.designsystem.SuperheroAppTheme
 import com.kostas.kostasapp.navigation.AppNavGraph
 import dagger.hilt.android.AndroidEntryPoint
+import jakarta.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var logger: Logger
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             SuperheroAppTheme {
-                val navController = rememberNavController()
-                AppNavGraph(navController = navController)
+                AppNavGraph(logger = logger)
             }
         }
     }

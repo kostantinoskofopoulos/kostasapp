@@ -42,4 +42,11 @@ interface SquadRepository {
      * @return true if the hero is in the squad, false otherwise.
      */
     suspend fun isInSquad(heroId: Int): Boolean
+
+    /**
+     * Atomically toggles the given [hero] in the squad.
+     *
+     * @return true if the hero is now in the squad, false if they were removed.
+     */
+    suspend fun toggle(hero: Hero): Boolean
 }

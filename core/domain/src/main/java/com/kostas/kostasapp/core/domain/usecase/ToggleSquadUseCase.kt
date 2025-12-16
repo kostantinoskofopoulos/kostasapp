@@ -15,13 +15,9 @@ class ToggleSquadUseCase(
 
     /**
      * Toggles the presence of [hero] in the squad.
+     *
+     * @return true if the hero is now in the squad, false if they were removed.
      */
-    suspend operator fun invoke(hero: Hero) {
-        val isInSquad = squadRepository.isInSquad(hero.id)
-        if (isInSquad) {
-            squadRepository.removeFromSquad(hero)
-        } else {
-            squadRepository.addToSquad(hero)
-        }
-    }
+    suspend operator fun invoke(hero: Hero): Boolean =
+        squadRepository.toggle(hero)
 }

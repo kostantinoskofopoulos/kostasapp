@@ -24,12 +24,13 @@ android {
 
 dependencies {
     implementation(project(":core:model"))
+    implementation(project(":core:common"))
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
-
+    implementation(libs.timber)
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 }

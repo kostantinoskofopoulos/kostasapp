@@ -14,12 +14,11 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
-
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "11"
     }
 }
 
@@ -27,8 +26,11 @@ dependencies {
 
     // Core Modules
     implementation(project(":core:model"))
-    implementation(project(":core:domain"))
     implementation(project(":core:network"))
+    implementation(project(":core:database"))
+    implementation(project(":core:domain"))
+    implementation(project(":core:common"))
+    implementation(project(":core:image"))
 
     // Paging
     implementation(libs.androidx.paging.runtime)
@@ -43,4 +45,9 @@ dependencies {
     // Gson
     implementation(libs.converter.gson)
     implementation("com.google.code.gson:gson:2.10.1")
+    // Room
+    api(libs.androidx.room.runtime)
+    api(libs.androidx.room.ktx)
+    api(libs.androidx.room.paging)
+    kapt(libs.room.compiler)
 }

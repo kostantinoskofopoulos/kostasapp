@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.kostas.common.logging.Logger
 import com.kostas.kostasapp.core.domain.usecase.GetPagedHeroesUseCase
 import com.kostas.kostasapp.core.domain.usecase.ObserveSquadUseCase
 import com.kostas.kostasapp.core.model.Hero
@@ -20,8 +21,11 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class HeroesViewModel @Inject constructor(
     getPagedHeroesUseCase: GetPagedHeroesUseCase,
-    private val observeSquadUseCase: ObserveSquadUseCase
+    private val observeSquadUseCase: ObserveSquadUseCase,
+    private val logger: Logger
 ) : ViewModel() {
+
+    private val tag = "HeroesViewModel"
 
     val heroesPaging: Flow<PagingData<Hero>> =
         getPagedHeroesUseCase().cachedIn(viewModelScope)
@@ -32,6 +36,7 @@ class HeroesViewModel @Inject constructor(
     val uiState: StateFlow<HeroesUiState> = _uiState.asStateFlow()
 
     init {
+        logger.d(tag, "init: observing squad")
         observeSquad()
     }
 
@@ -39,6 +44,7 @@ class HeroesViewModel @Inject constructor(
         viewModelScope.launch {
             observeSquadUseCase()
                 .catch { throwable ->
+                    logger.e(tag, "Error observing squad", throwable)
                     _uiState.update {
                         it.copy(
                             isSquadLoading = false,
@@ -47,6 +53,7 @@ class HeroesViewModel @Inject constructor(
                     }
                 }
                 .collect { squad ->
+                    logger.d(tag, "Squad updated: size=${squad.size}")
                     _uiState.update {
                         it.copy(
                             squad = squad,

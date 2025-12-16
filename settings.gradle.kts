@@ -25,6 +25,8 @@ include(":core:data")
 include(":core:database")
 include(":core:designsystem")
 include(":core:network")
+include(":core:common")
+include(":core:image")
 
 // FEATURES
 include(":feature:heroes")
