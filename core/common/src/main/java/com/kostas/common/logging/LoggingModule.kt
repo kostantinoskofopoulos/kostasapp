@@ -1,6 +1,5 @@
 package com.kostas.common.logging
 
-
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

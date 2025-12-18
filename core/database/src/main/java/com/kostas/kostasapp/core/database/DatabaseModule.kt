@@ -3,6 +3,7 @@ package com.kostas.kostasapp.core.database
 import android.content.Context
 import androidx.room.Room
 import com.kostas.kostasapp.core.database.dao.HeroDao
+import com.kostas.kostasapp.core.database.dao.HeroRemoteKeysDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,17 +17,14 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDisneyDatabase(
-        @ApplicationContext context: Context
-    ): DisneyDatabase =
-        Room.databaseBuilder(
-            context,
-            DisneyDatabase::class.java,
-            "disney.db"
-        ).build()
+    fun provideDisneyDatabase(@ApplicationContext context: Context): DisneyDatabase =
+        Room.databaseBuilder(context, DisneyDatabase::class.java, "disney.db")
+            .fallbackToDestructiveMigration()
+            .build()
 
     @Provides
-    fun provideHeroDao(
-        db: DisneyDatabase
-    ): HeroDao = db.heroDao()
+    fun provideHeroDao(db: DisneyDatabase): HeroDao = db.heroDao()
+
+    @Provides
+    fun provideHeroRemoteKeysDao(db: DisneyDatabase): HeroRemoteKeysDao = db.heroRemoteKeysDao()
 }

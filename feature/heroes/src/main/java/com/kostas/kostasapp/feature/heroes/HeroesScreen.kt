@@ -16,6 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import coil.compose.AsyncImage
 import com.kostas.kostasapp.core.model.Hero
@@ -50,22 +51,15 @@ fun HeroesScreen(
                 Text(
                     text = stringResource(R.string.heroes_my_squad),
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
 
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(
-                        items = uiState.squad,
-                        key = { it.id }
-                    ) { hero ->
-                        SquadHeroChip(
-                            hero = hero,
-                            onClick = { onHeroClick(hero.id) }
-                        )
+                    items(uiState.squad, key = { it.id }) { hero ->
+                        SquadHeroChip(hero = hero, onClick = { onHeroClick(hero.id) })
                     }
                 }
 
@@ -74,13 +68,31 @@ fun HeroesScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            HeroesList(
-                heroes = heroes,
-                onHeroClick = onHeroClick,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f, fill = true)
-            )
+            when (val refresh = heroes.loadState.refresh) {
+                is LoadState.Loading -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is LoadState.Error -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(refresh.error.message ?: "Failed to load.")
+                            Spacer(Modifier.height(8.dp))
+                            Button(onClick = { heroes.retry() }) { Text("Retry") }
+                        }
+                    }
+                }
+
+                is LoadState.NotLoading -> {
+                    HeroesList(
+                        heroes = heroes,
+                        onHeroClick = onHeroClick,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
         }
     }
 }
@@ -101,10 +113,33 @@ private fun HeroesList(
         ) { index ->
             val hero = heroes[index]
             if (hero != null) {
-                HeroRow(
-                    hero = hero,
-                    onClick = { onHeroClick(hero.id) }
-                )
+                HeroRow(hero = hero, onClick = { onHeroClick(hero.id) })
+            }
+        }
+
+        item {
+            when (val append = heroes.loadState.append) {
+                is LoadState.Loading -> {
+                    Box(
+                        Modifier.fillMaxWidth().padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) { CircularProgressIndicator() }
+                }
+
+                is LoadState.Error -> {
+                    Box(
+                        Modifier.fillMaxWidth().padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(append.error.message ?: "Failed to load more.")
+                            Spacer(Modifier.height(8.dp))
+                            OutlinedButton(onClick = { heroes.retry() }) { Text("Retry") }
+                        }
+                    }
+                }
+
+                else -> Unit
             }
         }
     }
@@ -117,33 +152,21 @@ private fun HeroRow(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
+        modifier = modifier.fillMaxWidth().clickable(onClick = onClick)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
                 model = hero.imageUrl,
                 contentDescription = hero.name,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape),
+                modifier = Modifier.size(40.dp).clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
-
             Spacer(modifier = Modifier.width(16.dp))
-
-            Text(
-                text = hero.name.orEmpty(),
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Text(text = hero.name.orEmpty(), style = MaterialTheme.typography.bodyMedium)
         }
-
         HorizontalDivider()
     }
 }
@@ -155,22 +178,16 @@ private fun SquadHeroChip(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier
-            .width(72.dp)
-            .clickable(onClick = onClick),
+        modifier = modifier.width(72.dp).clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(
             model = hero.imageUrl,
             contentDescription = hero.name,
-            modifier = Modifier
-                .size(56.dp)
-                .clip(CircleShape),
+            modifier = Modifier.size(56.dp).clip(CircleShape),
             contentScale = ContentScale.Crop
         )
-
         Spacer(modifier = Modifier.height(4.dp))
-
         Text(
             text = hero.name.orEmpty(),
             style = MaterialTheme.typography.bodySmall,

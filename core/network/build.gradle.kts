@@ -12,6 +12,10 @@ android {
     defaultConfig {
         minSdk = 24
     }
+    
+    buildFeatures {
+        buildConfig = true
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -30,7 +34,6 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
-    implementation(libs.timber)
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 }

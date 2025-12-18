@@ -6,38 +6,53 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.kostas.common.logging.Logger
 import com.kostas.kostasapp.core.domain.usecase.GetPagedHeroesUseCase
+import com.kostas.kostasapp.core.domain.usecase.ObserveConnectivityUseCase
 import com.kostas.kostasapp.core.domain.usecase.ObserveSquadUseCase
 import com.kostas.kostasapp.core.model.Hero
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class HeroesViewModel @Inject constructor(
-    getPagedHeroesUseCase: GetPagedHeroesUseCase,
+    private val getPagedHeroesUseCase: GetPagedHeroesUseCase,
     private val observeSquadUseCase: ObserveSquadUseCase,
+    private val observeConnectivityUseCase: ObserveConnectivityUseCase,
     private val logger: Logger
 ) : ViewModel() {
 
     private val tag = "HeroesViewModel"
 
-    val heroesPaging: Flow<PagingData<Hero>> =
-        getPagedHeroesUseCase().cachedIn(viewModelScope)
 
-    private val _uiState = MutableStateFlow(
-        HeroesUiState(isSquadLoading = true)
-    )
+    private val _pagingRetry = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val pagingRetry: SharedFlow<Unit> = _pagingRetry.asSharedFlow()
+
+    val heroesPaging: Flow<PagingData<Hero>> =
+        getPagedHeroesUseCase()
+            .cachedIn(viewModelScope)
+
+    private val _uiState = MutableStateFlow(HeroesUiState(isSquadLoading = true))
     val uiState: StateFlow<HeroesUiState> = _uiState.asStateFlow()
 
     init {
-        logger.d(tag, "init: observing squad")
         observeSquad()
+        autoRetryWhenBackOnline()
+    }
+
+    private fun autoRetryWhenBackOnline() {
+        viewModelScope.launch {
+            observeConnectivityUseCase()
+                .distinctUntilChanged()
+                .catch { t -> logger.e(tag, "Connectivity observe failed", t) }
+                .pairwise() // helper παρακάτω
+                .collect { (prev, now) ->
+                    if (prev == false && now == true) {
+                        logger.d(tag, "Back online -> paging retry")
+                        _pagingRetry.tryEmit(Unit)
+                    }
+                }
+        }
     }
 
     private fun observeSquad() {
@@ -53,7 +68,6 @@ class HeroesViewModel @Inject constructor(
                     }
                 }
                 .collect { squad ->
-                    logger.d(tag, "Squad updated: size=${squad.size}")
                     _uiState.update {
                         it.copy(
                             squad = squad,
@@ -63,5 +77,13 @@ class HeroesViewModel @Inject constructor(
                     }
                 }
         }
+    }
+}
+
+private fun <T> Flow<T>.pairwise(): Flow<Pair<T?, T>> = flow {
+    var prev: T? = null
+    collect { current ->
+        emit(prev to current)
+        prev = current
     }
 }

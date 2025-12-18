@@ -17,4 +17,10 @@ interface HeroRemoteKeysDao {
 
     @Query("DELETE FROM hero_remote_keys")
     suspend fun clearRemoteKeys()
+
+    @Query("DELETE FROM hero_remote_keys WHERE heroId NOT IN (SELECT id FROM heroes)")
+    suspend fun deleteOrphanKeys()
+
+    @Query("SELECT COUNT(*) FROM hero_remote_keys")
+    suspend fun count(): Int
 }

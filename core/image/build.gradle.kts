@@ -41,9 +41,8 @@ dependencies {
 
     // Coil
     implementation(libs.coil.compose)
-
-    // Hilt για ImageModule @Module @InstallIn
     implementation(libs.hilt.android)
+    implementation(project(":core:common"))
     kapt(libs.hilt.compiler)
 
     testImplementation(libs.junit)

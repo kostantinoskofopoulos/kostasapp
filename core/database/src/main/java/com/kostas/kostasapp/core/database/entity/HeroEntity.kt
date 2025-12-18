@@ -2,6 +2,7 @@ package com.kostas.kostasapp.core.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.kostas.kostasapp.core.database.CATALOG_SENTINEL_SORT_INDEX
 
 @Entity(tableName = "heroes")
 data class HeroEntity(
@@ -14,5 +15,9 @@ data class HeroEntity(
     val videoGames: List<String> = emptyList(),
     val allies: List<String> = emptyList(),
     val enemies: List<String> = emptyList(),
-    val lastUpdatedMillis: Long = System.currentTimeMillis()
+
+    val sortIndex: Long = CATALOG_SENTINEL_SORT_INDEX,
+    val lastFetchedAtMillis: Long = 0L,
+    val lastSeenAtMillis: Long = 0L,
+    val pinned: Boolean = false
 )
